@@ -1,4 +1,4 @@
-# [postcss][postcss]-zindex [![Build Status](https://travis-ci.org/ben-eb/postcss-discard-font-face.svg?branch=master)][ci] [![NPM version](https://badge.fury.io/js/postcss-discard-font-face.svg)][npm] [![Dependency Status](https://gemnasium.com/ben-eb/postcss-discard-font-face.svg)][deps]
+# [postcss][postcss]-discard-font-face [![Build Status](https://travis-ci.org/ben-eb/postcss-discard-font-face.svg?branch=master)][ci] [![NPM version](https://badge.fury.io/js/postcss-discard-font-face.svg)][npm] [![Dependency Status](https://gemnasium.com/ben-eb/postcss-discard-font-face.svg)][deps]
 
 > Discard unused font faces with PostCSS.
 
