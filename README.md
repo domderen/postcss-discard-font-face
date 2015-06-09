@@ -2,6 +2,12 @@
 
 > Discard unused font faces with PostCSS.
 
+*This module's functionality is changing. You can find the current behaviour
+in [postcss-discard-unused](https://github.com/ben-eb/postcss-discard-unused),
+along with support for `@keyframes` and `@counter-styles`. For more details on
+the proposed new role of this module, please see
+[this issue](https://github.com/ben-eb/postcss-discard-font-face/issues/1).*
+
 Install via [npm](https://npmjs.org/package/postcss-discard-font-face):
 
 ```
