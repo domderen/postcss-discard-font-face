@@ -56,46 +56,50 @@ function filterArray(array, fn) {
     return filtered;
 }
 
+function transformDecl (filter) {
+    return function (node) {
+        var result = filterArray(comma(node.value), function (item) {
+            var url, format, index, post, result, quote;
+
+            index = item.lastIndexOf('url(');
+            if (~index) {
+                url = bmatch('(', ')', item.slice(index));
+                if (url) {
+                    post = url.post;
+                    result = url.body[0];
+                    quote = result === '\'' || result === '"' ? result : '';
+                    url = trimQuotes(url.body);
+                    index = post.indexOf('format(');
+                    if (~index) {
+                        format = bmatch('(', ')', post);
+                        format = format ? trimQuotes(format.body) : null;
+                    }
+
+                    result = filter(url, format);
+
+                    if (typeof result === 'string') {
+                        result = 'url(' + quote + result + quote + ')' + post;
+                    }
+
+                    return result;
+                }
+            }
+        }).join(', ');
+
+        if (result) {
+            node.value = result;
+        } else {
+            node.removeSelf();
+        }
+    }
+}
+
 module.exports = postcss.plugin('postcss-discard-font-face', function (filter) {
     filter = getFilter(filter);
 
     return function (css) {
         css.eachAtRule('font-face', function (rule) {
-            rule.eachDecl('src', function (node) {
-                var result = filterArray(comma(node.value), function (item) {
-                    var url, format, index, post, result, quote;
-
-                    index = item.lastIndexOf('url(');
-                    if (~index) {
-                        url = bmatch('(', ')', item.slice(index));
-                        if (url) {
-                            post = url.post;
-                            result = url.body[0];
-                            quote = result === '\'' || result === '"' ? result : '';
-                            url = trimQuotes(url.body);
-                            index = post.indexOf('format(');
-                            if (~index) {
-                                format = bmatch('(', ')', post);
-                                format = format ? trimQuotes(format.body) : null;
-                            }
-
-                            result = filter(url, format);
-
-                            if (typeof result === 'string') {
-                                result = 'url(' + quote + result + quote + ')' + post;
-                            }
-
-                            return result;
-                        }
-                    }
-                }).join(', ');
-
-                if (result) {
-                    node.value = result;
-                } else {
-                    node.removeSelf();
-                }
-            });
+            rule.eachDecl('src', transformDecl(filter));
         });
     };
 });
