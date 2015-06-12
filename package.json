@@ -10,11 +10,9 @@
   "keywords": [
     "css",
     "font",
-    "optimise",
-    "optimisation",
+    "filter",
     "postcss",
-    "postcss-plugins",
-    "unused"
+    "postcss-plugin"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -29,13 +27,18 @@
     "email": "beneb.info@gmail.com",
     "url": "http://beneb.info"
   },
+  "contributors": [
+    {
+      "name": "Bogdan Chadkin",
+      "email": "trysound@yandex.ru"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/ben-eb/postcss-discard-font-face.git"
   },
   "dependencies": {
-    "flatten": "0.0.1",
-    "uniqs": "^2.0.0",
-    "postcss": "^4.1.2"
+    "balanced-match": "^0.2.0",
+    "postcss": "^4.1.11"
   }
 }

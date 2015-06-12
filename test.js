@@ -4,33 +4,38 @@ var plugin = require('./');
 var name = require('./package.json').name;
 
 var tests = [{
-    message: 'should remove unused fonts',
-    fixture: '@font-face {font-family:"Does Not Exist";src:url("fonts/does-not-exist.ttf") format("truetype")}',
-    expected: ''
+    message: 'should filter sources with function',
+    options: function (url) {
+        var ext = url.split('#')[0].split('?')[0].split('.').pop();
+
+        if(ext !== 'ttf' && ext !== 'svg') {
+            return false;
+        }
+    },
+    fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
+    expected: '@font-face { src: url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }'
 }, {
-    message: 'should remove unused fonts (2)',
-    fixture: '@font-face {font-family:"Does Not Exist";src:url("fonts/does-not-exist.ttf") format("truetype")}@font-face {font-family:"Does Exist";src: url("fonts/does-exist.ttf") format("truetype")}',
-    expected: ''
+    message: 'should replace return by function url',
+    options: function (url) {
+        return '../fonts/' + url;
+    },
+    fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
+    expected: '@font-face { src: url("../fonts/webfont.eot"); src: url("../fonts/webfont.eot?#iefix") format("embedded-opentype"), url("../fonts/webfont.woff2") format("woff2"), url("../fonts/webfont.woff") format("woff"), url("../fonts/webfont.ttf") format("truetype"), url("../fonts/webfont.svg#svgFontName") format("svg"); }'
 }, {
-    message: 'should remove unused fonts & keep used fonts',
-    fixture: '@font-face {font-family:"Does Not Exist";src:url("fonts/does-not-exist.ttf") format("truetype")}@font-face {font-family:"Does Exist";src: url("fonts/does-exist.ttf") format("truetype")}body{font-family:"Does Exist",Helvetica,Arial,sans-serif}',
-    expected: '@font-face {font-family:"Does Exist";src: url("fonts/does-exist.ttf") format("truetype")}body{font-family:"Does Exist",Helvetica,Arial,sans-serif}',
+    message: 'should not filter sources with function that return undefined',
+    options: function (url) {},
+    fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
+    expected: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }'
 }, {
-    message: 'should work with the font shorthand',
-    fixture: '@font-face {font-family:"Does Exist";src: url("fonts/does-exist.ttf") format("truetype")}body{font: 10px/1.5 "Does Exist",Helvetica,Arial,sans-serif}',
-    expected: '@font-face {font-family:"Does Exist";src: url("fonts/does-exist.ttf") format("truetype")}body{font: 10px/1.5 "Does Exist",Helvetica,Arial,sans-serif}'
+    message: 'should filter sources with [ttf, svg] array',
+    options: ['ttf', 'svg'],
+    fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
+    expected: '@font-face { src: url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }'
 }, {
-    message: 'should not be responsible for normalising fonts',
-    fixture: '@font-face {font-family:"Does Exist";src:url("fonts/does-exist.ttf") format("truetype")}body{font-family:Does Exist}',
-    expected: 'body{font-family:Does Exist}'
-}, {
-    message: 'should remove font faces if they have no font-family property',
-    fixture: '@font-face {src:url("fonts/does-not-exist.ttf") format("truetype")}',
-    expected: ''
-}, {
-    message: 'should pass through if it doesn\'t find a font family',
-    fixture: 'h1{font-weight:bold;color:blue}',
-    expected: 'h1{font-weight:bold;color:blue}'
+    message: 'should not filter sources with empty array',
+    options: [],
+    fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
+    expected: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }'
 }];
 
 function process (css, options) {
