@@ -1,7 +1,7 @@
 {
   "name": "postcss-discard-font-face",
   "version": "1.0.1",
-  "description": "Discard unused font faces with PostCSS.",
+  "description": "Discard font faces by type, with PostCSS.",
   "main": "index.js",
   "scripts": {
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js",
@@ -10,11 +10,9 @@
   "keywords": [
     "css",
     "font",
-    "optimise",
-    "optimisation",
+    "filter",
     "postcss",
-    "postcss-plugins",
-    "unused"
+    "postcss-plugin"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -29,13 +27,18 @@
     "email": "beneb.info@gmail.com",
     "url": "http://beneb.info"
   },
+  "contributors": [
+    {
+      "name": "Bogdan Chadkin",
+      "email": "trysound@yandex.ru"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/ben-eb/postcss-discard-font-face.git"
   },
   "dependencies": {
-    "flatten": "0.0.1",
-    "uniqs": "^2.0.0",
-    "postcss": "^4.1.2"
+    "balanced-match": "^0.2.0",
+    "postcss": "^4.1.11"
   }
 }

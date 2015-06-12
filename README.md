@@ -1,14 +1,10 @@
 # [postcss][postcss]-discard-font-face [![Build Status](https://travis-ci.org/ben-eb/postcss-discard-font-face.svg?branch=master)][ci] [![NPM version](https://badge.fury.io/js/postcss-discard-font-face.svg)][npm] [![Dependency Status](https://gemnasium.com/ben-eb/postcss-discard-font-face.svg)][deps]
 
-> Discard unused font faces with PostCSS.
+> Discard font faces by type, with PostCSS.
 
-*This module's functionality is changing. You can find the current behaviour
-in [postcss-discard-unused](https://github.com/ben-eb/postcss-discard-unused),
-along with support for `@keyframes` and `@counter-styles`. For more details on
-the proposed new role of this module, please see
-[this issue](https://github.com/ben-eb/postcss-discard-font-face/issues/1).*
+## Install
 
-Install via [npm](https://npmjs.org/package/postcss-discard-font-face):
+With [npm](https://npmjs.org/package/postcss-discard-font-face) do:
 
 ```
 npm install postcss-discard-font-face --save
@@ -16,44 +12,61 @@ npm install postcss-discard-font-face --save
 
 ## Example
 
-```js
-var postcss = require('postcss');
-var fontFace = require('postcss-discard-font-face');
+When discarding TTF fonts:
 
-var css = '@font-face {font-family:Example;src:url("eg.woff") format("woff")}h1{font-family:Helvetica, sans-serif}';
-console.log(postcss(fontFace()).process(css).css);
-
-// => 'h1{font-family:Helvetica, sans-serif}'
-```
-
-This module will discard `@font-face` declarations in your CSS files when it
-cannot find any rules that make use of them; or if they have no `font-family`
-property to begin with.
-
-For example, you might be loading the Bootstrap 3 framework which comes with a
-whole suite of icons that you just aren't using; and now that you ran your CSS
-file through [UnCSS][uncss] it stripped out all of the icon classes. This module
-can then step in and remove the `@font-face` declaration for Glyphicons; now you
-are no longer making an unnecessary HTTP request for an icon set that you are
-not using.
-
-Note that this plugin is not responsible for normalising font families, as it
-makes the assumption that you will write your font names consistently, such that
-it considers these two declarations differently:
+### Input
 
 ```css
-h1 {
-    font-family: "Helvetica Neue"
-}
-
-h2 {
-    font-family: Helvetica Neue
+@font-face {
+    src: url("webfont.ttf") format("truetype"),
+         url("webfont.svg#svgFontName") format("svg");
 }
 ```
 
-However, you can mitigate this by including [postcss-font-family][fontfam]
-*before* this plugin, which will take care of normalising quotes, and
-deduplicating. For more examples, see the [tests](test.js).
+### Output
+
+```css
+@font-face {
+    src: url("webfont.svg#svgFontName") format("svg");
+}
+```
+
+## API
+
+### discardFonts([filter])
+
+#### filter
+
+Type: `function|array`
+Return: `boolean|string`
+Arguments: The function is passed the URL of the font as the first argument,
+and the format as the second.
+
+For each font, return false to remove, or a new string if you would like to
+transform the URL.
+
+```js
+// Remove fonts of an unknown type
+
+discardFonts(function (url, format) {
+    if (~url.indexOf('.exe')) {
+        return false;
+    }
+});
+```
+
+Alternately, you can whitelist an array of types:
+
+```js
+discardFonts(['ttf', 'svg']);
+```
+
+With this setting, all extensions that do not match will be removed.
+
+## Usage
+
+See the [PostCSS documentation](https://github.com/postcss/postcss#usage) for
+examples for your environment.
 
 ## Contributing
 
@@ -67,6 +80,4 @@ MIT © Ben Briggs
 [ci]:      https://travis-ci.org/ben-eb/postcss-discard-font-face
 [deps]:    https://gemnasium.com/ben-eb/postcss-discard-font-face
 [npm]:     http://badge.fury.io/js/postcss-discard-font-face
-[fontfam]: https://github.com/ben-eb/postcss-font-family
 [postcss]: https://github.com/postcss/postcss
-[uncss]:   https://github.com/giakki/uncss

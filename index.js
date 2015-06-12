@@ -1,40 +1,105 @@
 'use strict';
 
-var uniqs = require('uniqs');
 var postcss = require('postcss');
-var flatten = require('flatten');
+var bmatch = require('balanced-match');
 var comma = postcss.list.comma;
 
-module.exports = postcss.plugin('postcss-discard-font-face', function () {
-    return function (css) {
-        var cache = [];
-        // Cache all font-family declarations
-        css.eachRule(function (rule) {
-            rule.eachInside(function (decl) {
-                if (/font(|-family)/.test(decl.prop)) {
-                    cache.push(comma(decl.value));
-                }
-            });
-        });
-        cache = uniqs(flatten(cache));
-        css.eachAtRule('font-face', function (rule) {
-            var fontFamilies = rule.nodes.filter(function (node) {
-                return node.prop === 'font-family';
-            });
-            // Discard the @font-face if it has no font-family
-            if (!fontFamilies.length) {
-                return rule.removeSelf();
+function trimQuotes(str) {
+    var first = str[0];
+    if (first === '"' || first === '\'') {
+        return str.slice(1, -1);
+    }
+}
+
+function getFilter(filter) {
+    if (typeof filter === 'function') {
+        return filter;
+    } else if (Array.isArray(filter) && filter.length) {
+        return function (url) {
+            var index;
+
+            // Trim ? and # tails
+            index = url.lastIndexOf('#');
+            if (~index) {
+                url = url.slice(0, index);
             }
-            fontFamilies.forEach(function (family) {
-                var hasFont = comma(family.value).some(function (font) {
-                    return cache.some(function (c) {
-                        return ~c.indexOf(font);
-                    });
-                });
-                if (!hasFont) {
-                    rule.removeSelf();
+
+            index = url.lastIndexOf('?');
+            if (~index) {
+                url = url.slice(0, index);
+            }
+
+            // Check extension
+            return !!~filter.indexOf(url.split('.').pop());
+        };
+    } else {
+        return function () {};
+    }
+}
+
+function filterArray(array, fn) {
+    var i, max, result;
+    var filtered = [];
+
+    for (i = 0, max = array.length; i < max; i += 1) {
+        result = fn(array[i]);
+
+        if (result !== false) {
+            if (typeof result === 'string') {
+                filtered.push(result);
+            } else {
+                filtered.push(array[i]);
+            }
+        }
+    }
+
+    return filtered;
+}
+
+function transformDecl (filter) {
+    return function (node) {
+        var result = filterArray(comma(node.value), function (item) {
+            var url, format, index, post, result, quote;
+
+            index = item.lastIndexOf('url(');
+            if (~index) {
+                url = bmatch('(', ')', item.slice(index));
+                if (url) {
+                    post = url.post;
+                    result = url.body[0];
+                    quote = result === '\'' || result === '"' ? result : '';
+                    url = trimQuotes(url.body);
+                    index = post.indexOf('format(');
+                    if (~index) {
+                        format = bmatch('(', ')', post);
+                        format = format ? trimQuotes(format.body) : null;
+                    }
+
+                    result = filter(url, format);
+
+                    if (typeof result === 'string') {
+                        result = 'url(' + quote + result + quote + ')' + post;
+                    }
+
+                    return result;
                 }
-            });
+            }
+        }).join(', ');
+
+        if (result) {
+            node.value = result;
+        } else {
+            node.removeSelf();
+        }
+    }
+}
+
+module.exports = postcss.plugin('postcss-discard-font-face', function (filter) {
+    filter = getFilter(filter);
+
+    return function (css) {
+        css.eachAtRule('font-face', function (rule) {
+            rule.eachDecl('src', transformDecl(filter));
         });
     };
 });
