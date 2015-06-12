@@ -1,7 +1,7 @@
 {
   "name": "postcss-discard-font-face",
   "version": "1.0.1",
-  "description": "Discard unused font faces with PostCSS.",
+  "description": "Discard font faces by type, with PostCSS.",
   "main": "index.js",
   "scripts": {
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js",
