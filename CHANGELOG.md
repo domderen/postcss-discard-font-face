@@ -1,3 +1,7 @@
+# 2.0.1
+
+* Fixed crashing when specify a font face url without quote marks
+
 # 2.0.0
 
 * This is a breaking update. The prior behaviour of this module has been moved

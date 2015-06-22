@@ -32,6 +32,11 @@ var tests = [{
     fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
     expected: '@font-face { src: url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }'
 }, {
+    message: 'should correctly works with function argument without quotes',
+    options: ['ttf', 'svg'],
+    fixture: '@font-face { src: url(webfont.eot); src: url(webfont.eot?#iefix) format(embedded-opentype), url(webfont.woff2) format(woff2), url(webfont.woff) format(woff), url(webfont.ttf) format(truetype), url(webfont.svg#svgFontName) format(svg); }',
+    expected: '@font-face { src: url(webfont.ttf) format(truetype), url(webfont.svg#svgFontName) format(svg); }'
+}, {
     message: 'should not filter sources with empty array',
     options: [],
     fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',

@@ -7,8 +7,10 @@ var comma = postcss.list.comma;
 function trimQuotes(str) {
     var first = str[0];
     if (first === '"' || first === '\'') {
-        return str.slice(1, -1);
+        str = str.slice(1, -1);
     }
+
+    return str;
 }
 
 function getFilter(filter) {
