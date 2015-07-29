@@ -41,6 +41,18 @@ var tests = [{
     options: [],
     fixture: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }',
     expected: '@font-face { src: url("webfont.eot"); src: url("webfont.eot?#iefix") format("embedded-opentype"), url("webfont.woff2") format("woff2"), url("webfont.woff") format("woff"), url("webfont.ttf") format("truetype"), url("webfont.svg#svgFontName") format("svg"); }'
+}, {
+    message: 'should filter font-face with properties',
+    options: {
+        font: {
+            'Open Sans': {
+                weight: [400, 600],
+                style: ['normal']
+            }
+        }
+    },
+    fixture: '@font-face { font-family: "Open Sans"; font-weight: 400; font-style: normal; } @font-face { font-family: "Open Sans"; font-style: italic; } @font-face { font-family: "Open Sans"; font-weight: 600; } @font-face { font-family: "Open Sans"; font-weight: 300; }',
+    expected: '@font-face { font-family: "Open Sans"; font-weight: 400; font-style: normal; } @font-face { font-family: "Open Sans"; font-weight: 600; }'
 }];
 
 function process (css, options) {
