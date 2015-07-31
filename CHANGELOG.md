@@ -1,3 +1,7 @@
+# 2.1.0
+
+* Adds the option to filter fonts by their weight or style properties.
+
 # 2.0.1
 
 * Fixed crashing when specify a font face url without quote marks
