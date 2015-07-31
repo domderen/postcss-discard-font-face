@@ -33,7 +33,7 @@ When discarding TTF fonts:
 
 ## API
 
-### discardFonts([filter])
+### discardFonts([filter|options])
 
 #### filter
 
@@ -62,6 +62,28 @@ discardFonts(['ttf', 'svg']);
 ```
 
 With this setting, all extensions that do not match will be removed.
+
+#### options
+
+##### font
+
+Type: `object`
+
+Each key in this object should correspond to a font name, which will then be
+discarded if its properties do not correspond to the whitelisted properties.
+For example, to only allow a font weight of `400` & a font style of `normal`,
+it would be configured like so:
+
+```js
+discardFonts({
+    font: {
+        'Open Sans': {
+            weight: [400],
+            style: ['normal']
+        }
+    }
+});
+```
 
 ## Usage
 

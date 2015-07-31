@@ -4,7 +4,9 @@ var postcss = require('postcss');
 var bmatch = require('balanced-match');
 var comma = postcss.list.comma;
 
-function trimQuotes(str) {
+function noop () {};
+
+function trimQuotes (str) {
     var first = str[0];
     if (first === '"' || first === '\'') {
         str = str.slice(1, -1);
@@ -13,33 +15,27 @@ function trimQuotes(str) {
     return str;
 }
 
-function getFilter(filter) {
-    if (typeof filter === 'function') {
-        return filter;
-    } else if (Array.isArray(filter) && filter.length) {
-        return function (url) {
-            var index;
+function getSrcFilter (filter) {
+    return filter.length ? function (url) {
+        var index;
 
-            // Trim ? and # tails
-            index = url.lastIndexOf('#');
-            if (~index) {
-                url = url.slice(0, index);
-            }
+        // Trim ? and # tails
+        index = url.lastIndexOf('#');
+        if (~index) {
+            url = url.slice(0, index);
+        }
 
-            index = url.lastIndexOf('?');
-            if (~index) {
-                url = url.slice(0, index);
-            }
+        index = url.lastIndexOf('?');
+        if (~index) {
+            url = url.slice(0, index);
+        }
 
-            // Check extension
-            return !!~filter.indexOf(url.split('.').pop());
-        };
-    } else {
-        return function () {};
-    }
+        // Check extension
+        return !!~filter.indexOf(url.split('.').pop());
+    } : noop;
 }
 
-function filterArray(array, fn) {
+function filterArray (array, fn) {
     var i, max, result;
     var filtered = [];
 
@@ -93,15 +89,67 @@ function transformDecl (filter) {
         } else {
             node.removeSelf();
         }
-    }
+    };
+}
+
+function transformRule (srcFilter, fontFilter) {
+    return function (rule) {
+        var font;
+        var family;
+        var weight;
+        var style;
+
+        rule.eachDecl(function (decl) {
+            var prop = decl.prop;
+            var value = decl.value;
+
+            if (prop === 'font-family') {
+                family = trimQuotes(value);
+            } else if (prop === 'font-weight') {
+                weight = parseInt(value, 10);
+                weight = isNaN(weight) ? value : weight;
+            } else if (prop === 'font-style') {
+                style = value;
+            }
+        });
+
+        font = fontFilter[family];
+
+        if (font) {
+            if (weight && !~font.weight.indexOf(weight) ||
+                style && !~font.style.indexOf(style)) {
+                return rule.removeSelf();
+            }
+        }
+
+        rule.eachDecl('src', transformDecl(srcFilter));
+    };
 }
 
 module.exports = postcss.plugin('postcss-discard-font-face', function (filter) {
-    filter = getFilter(filter);
+    var srcFilter;
+    var fontFilter;
+
+    if (Array.isArray(filter) || typeof filter === 'function') {
+        srcFilter = filter;
+    } else if (typeof filter === 'object') {
+        srcFilter = filter.src;
+        fontFilter = filter.font;
+    }
+
+    if (typeof srcFilter === 'function') {
+        srcFilter = srcFilter;
+    } else if (Array.isArray(srcFilter)) {
+        srcFilter = getSrcFilter(srcFilter);
+    } else {
+        srcFilter = noop;
+    }
+
+    if (typeof fontFilter !== 'object') {
+        fontFilter = {};
+    }
 
     return function (css) {
-        css.eachAtRule('font-face', function (rule) {
-            rule.eachDecl('src', transformDecl(filter));
-        });
+        css.eachAtRule('font-face', transformRule(srcFilter, fontFilter));
     };
 });
