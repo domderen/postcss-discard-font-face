@@ -4,7 +4,9 @@ var postcss = require('postcss');
 var bmatch = require('balanced-match');
 var comma = postcss.list.comma;
 
-function trimQuotes(str) {
+function noop () {};
+
+function trimQuotes (str) {
     var first = str[0];
     if (first === '"' || first === '\'') {
         str = str.slice(1, -1);
@@ -13,7 +15,7 @@ function trimQuotes(str) {
     return str;
 }
 
-function getSrcFilter(filter) {
+function getSrcFilter (filter) {
     return filter.length ? function (url) {
         var index;
 
@@ -30,10 +32,10 @@ function getSrcFilter(filter) {
 
         // Check extension
         return !!~filter.indexOf(url.split('.').pop());
-    } : function () {};
+    } : noop;
 }
 
-function filterArray(array, fn) {
+function filterArray (array, fn) {
     var i, max, result;
     var filtered = [];
 
@@ -87,10 +89,10 @@ function transformDecl (filter) {
         } else {
             node.removeSelf();
         }
-    }
+    };
 }
 
-function transformRule(srcFilter, fontFilter) {
+function transformRule (srcFilter, fontFilter) {
     return function (rule) {
         var font;
         var family;
@@ -101,18 +103,21 @@ function transformRule(srcFilter, fontFilter) {
             var prop = decl.prop;
             var value = decl.value;
 
-            if(prop === 'font-family') {
+            if (prop === 'font-family') {
                 family = trimQuotes(value);
-            } else if(prop === 'font-weight') {
+            } else if (prop === 'font-weight') {
                 weight = parseInt(value, 10);
                 weight = isNaN(weight) ? value : weight;
-            } else if(prop === 'font-style') {
+            } else if (prop === 'font-style') {
                 style = value;
             }
         });
 
-        if(font = fontFilter[family]) {
-            if(weight && !~font.weight.indexOf(weight) || style && !~font.style.indexOf(style)) {
+        font = fontFilter[family];
+
+        if (font) {
+            if (weight && !~font.weight.indexOf(weight) ||
+                style && !~font.style.indexOf(style)) {
                 return rule.removeSelf();
             }
         }
@@ -125,22 +130,22 @@ module.exports = postcss.plugin('postcss-discard-font-face', function (filter) {
     var srcFilter;
     var fontFilter;
 
-    if(Array.isArray(filter) || typeof filter === 'function') {
+    if (Array.isArray(filter) || typeof filter === 'function') {
         srcFilter = filter;
-    } else if(typeof filter === 'object') {
+    } else if (typeof filter === 'object') {
         srcFilter = filter.src;
         fontFilter = filter.font;
     }
 
-    if(typeof srcFilter === 'function') {
+    if (typeof srcFilter === 'function') {
         srcFilter = srcFilter;
-    } else if(Array.isArray(srcFilter)) {
+    } else if (Array.isArray(srcFilter)) {
         srcFilter = getSrcFilter(srcFilter);
     } else {
-        srcFilter = function () {};
+        srcFilter = noop;
     }
 
-    if(typeof fontFilter !== 'object') {
+    if (typeof fontFilter !== 'object') {
         fontFilter = {};
     }
 
