@@ -7,6 +7,10 @@
     "lint": "jshint index.js --reporter node_modules/jshint-stylish/stylish.js",
     "test": "tape test.js | tap-spec"
   },
+  "files": [
+    "index.js",
+    "LICENSE-MIT"  
+  ],
   "keywords": [
     "css",
     "font",
