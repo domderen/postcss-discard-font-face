@@ -1,3 +1,7 @@
+# 3.0.0
+
+* Updates PostCSS to `5.0.0`.
+
 # 2.1.0
 
 * Adds the option to filter fonts by their weight or style properties.
