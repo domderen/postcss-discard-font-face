@@ -87,7 +87,7 @@ function transformDecl (filter) {
         if (result) {
             node.value = result;
         } else {
-            node.removeSelf();
+            node.remove();
         }
     };
 }
@@ -99,7 +99,7 @@ function transformRule (srcFilter, fontFilter) {
         var weight;
         var style;
 
-        rule.eachDecl(function (decl) {
+        rule.walkDecls(function (decl) {
             var prop = decl.prop;
             var value = decl.value;
 
@@ -118,11 +118,11 @@ function transformRule (srcFilter, fontFilter) {
         if (font) {
             if (weight && !~font.weight.indexOf(weight) ||
                 style && !~font.style.indexOf(style)) {
-                return rule.removeSelf();
+                return rule.remove();
             }
         }
 
-        rule.eachDecl('src', transformDecl(srcFilter));
+        rule.walkDecls('src', transformDecl(srcFilter));
     };
 }
 
@@ -150,6 +150,6 @@ module.exports = postcss.plugin('postcss-discard-font-face', function (filter) {
     }
 
     return function (css) {
-        css.eachAtRule('font-face', transformRule(srcFilter, fontFilter));
+        css.walkAtRules('font-face', transformRule(srcFilter, fontFilter));
     };
 });

@@ -16,10 +16,10 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "jshint": "^2.6.3",
-    "jshint-stylish": "^1.0.1",
-    "tap-spec": "^2.2.2",
-    "tape": "^3.5.0"
+    "jshint": "^2.9.2",
+    "jshint-stylish": "^2.2.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.5.1"
   },
   "homepage": "https://github.com/ben-eb/postcss-discard-font-face",
   "author": {
@@ -38,7 +38,7 @@
     "url": "git://github.com/ben-eb/postcss-discard-font-face.git"
   },
   "dependencies": {
-    "balanced-match": "^0.2.0",
-    "postcss": "^4.1.11"
+    "balanced-match": "^0.4.1",
+    "postcss": "^5.0.21"
   }
 }
