@@ -1,6 +1,6 @@
 {
   "name": "postcss-discard-font-face",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Discard font faces by type, with PostCSS.",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "files": [
     "index.js",
-    "LICENSE-MIT"  
+    "LICENSE-MIT"
   ],
   "keywords": [
     "css",
